@@ -138,33 +138,49 @@ app.get('/getVehicles', async (req, res) => {
     }
 });
 
-app.get('/getVehicle', async (req, res) => {
-    try {
-      const vehicle = await Vehicle.findById(req.params.id);
-      if (!vehicle) return res.status(404).json({ message: 'Vehicle not found' });
-      res.json(vehicle);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to retrieve vehicle' });
-    }
-  });
   
   // Update an existing vehicle by ID
-  app.put('/updateVehicle', async (req, res) => {
+// Get all vehicles
+app.get('/vehicles', async (req, res) => {
+    try {
+        const vehicles = await Vehicle.find();
+        res.json(vehicles);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get a vehicle by ID
+app.get('/vehicles/:id', async (req, res) => {
     try {
         const vehicle = await Vehicle.findById(req.params.id);
+        res.json(vehicle);
+    } catch (error) {
+        res.status(404).json({ message: 'Vehicle not found' });
+    }
+});
 
-        if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
-
-        // Verify user ownership
-        if (vehicle.userId.toString() !== req.user.id) {
-            return res.status(403).json({ error: 'Not authorized to edit this vehicle' });
-        }
-
-        // Update vehicle if authorized
-        const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true });
+// Update vehicle
+app.put('/vehicles/:id', async (req, res) => {
+    try {
+        const updatedVehicle = await Vehicle.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
         res.json(updatedVehicle);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update vehicle' });
+        res.status(400).json({ message: error.message });
+    }
+});
+
+app.delete('/vehicles/:id', async (req, res) => {
+    try {
+        const vehicleId = req.params.id;
+        await Vehicle.findByIdAndDelete(vehicleId);
+        res.status(200).json({ message: 'Vehicle deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while deleting the vehicle' });
     }
 });
 
