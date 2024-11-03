@@ -13,9 +13,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://karthi:Karthikarakkal@cluster0.xi3nlpm.mongodb.net/cardb?retryWrites=true&w=majority&appName=Cluster0", { 
+mongoose.connect("mongodb+srv://rizwan2001:rizwan2001@cluster0.6ucejfl.mongodb.net/karthik?retryWrites=true&w=majority&appName=Cluster0", { 
     useNewUrlParser: true, 
     useUnifiedTopology: true 
 })
@@ -96,9 +98,9 @@ app.post('/addVehicle', upload.single('image'), async (req, res) => {
         return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Save image path to the vehicle data
+    // Save image URL to the vehicle data
     if (req.file) {
-        vehicleData.imagePath = req.file.path; // Store the image path in the database
+        vehicleData.imagePath = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     }
 
     try {
